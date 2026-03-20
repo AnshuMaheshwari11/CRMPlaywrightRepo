@@ -5,11 +5,16 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 11 * * *'  # Runs daily at 2 AM UTC
 
 jobs:
   test:
     runs-on: ubuntu-latest   # GitHub VM
-
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      USERNAME: ${{ secrets.USERNAME }}
+      PASSWORD: ${{ secrets.PASSWORD }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,3 +32,10 @@ jobs:
 
       - name: Run Playwright tests
         run: npx playwright test
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
