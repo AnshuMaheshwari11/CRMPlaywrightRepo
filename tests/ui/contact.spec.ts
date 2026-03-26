@@ -1,19 +1,23 @@
+import { SelectCampaignPage } from '../../index';
 import {test, expect} from '../../fixtures/baseFixture';
-import { contactBoundaryData } from '../../test-data/contactData';
+import { contactTestData } from '../../test-data/contactData';
+import { makeContactDataUnique } from '../../utils/dataGenerator';
 
   // Basic test to verify the contact page header
-  test('verify contacts page', async ({loginPage, navigationPage, contactPage}) => {
+  test('verify contacts page', async ({loginPage, navigationPage, contactPageFactory}) => {
     await loginPage.login(process.env.USERNAME!, process.env.PASSWORD!);
     await navigationPage.clickContactsLink();
-    expect(await contactPage.getContactPageHeader()).toBe('Contacts');
+    const header = await contactPageFactory.getContactPage().getContactPageHeader();
+    expect(header).toBe('Contacts');
   });
 
   // Test to verify contact form visibility
-  test('Verify create contact page', async ({loginPage, navigationPage, contactPage, createContactPage}) => {
+  test('Verify create contact page', async ({loginPage, navigationPage, contactPageFactory}) => {
     await loginPage.login(process.env.USERNAME!, process.env.PASSWORD!);
     await navigationPage.clickContactsLink();
-    await contactPage.clickCreateContactButton();
-    expect(await createContactPage.getCreateContactPage()).toBe('Create Contact');
+    await contactPageFactory.getContactPage().clickCreateContactButton();
+    const createContactHeader = await contactPageFactory.getCreateContactPage().getCreateContactPage();
+    expect(createContactHeader).toBe('Create Contact');
   });
     
 /*
@@ -27,27 +31,29 @@ import { contactBoundaryData } from '../../test-data/contactData';
 */
   // Iterate over the test data and create a test for each valid create contact scenario
   //loginData.forEach((data) => {
-  contactBoundaryData.forEach((data) => {
-    test(`Verify valid Contact creation @current : ${data.scenario}`, async ({loginPage, navigationPage, contactPage, createContactPage}) => {
+  contactTestData.forEach((testData) => {
+    test(`Verify valid Contact creation @current : ${testData.scenario}`, async ({loginPage, navigationPage, contactPageFactory, getPage}) => {
 
       await loginPage.login(process.env.USERNAME!, process.env.PASSWORD!);
       
       await navigationPage.clickContactsLink();
+      const contactPage = contactPageFactory.getContactPage();
       await contactPage.clickCreateContactButton();
-      await createContactPage.fillContactForm(data.org, data.title, data.dept, data.off,data.name, data.mob, data.email);
+      const createContactPage = contactPageFactory.getCreateContactPage();
 
-      const selectCampaignPage = await createContactPage.openSelectCampaignPage();
-      const childPage = selectCampaignPage.getPage();
-      
+      const uniqueData = makeContactDataUnique(testData)
+      await createContactPage.fillContactForm(uniqueData);
+
+      const childPage = await createContactPage.openSelectCampaignPage();
       await childPage.waitForLoadState('domcontentloaded');
+      const  selectCampaignPage = getPage(SelectCampaignPage, childPage);
       
-      await selectCampaignPage.selectCampaign('Campaign ID', 'CAM09266');
-      //await selectCampaignPage.selectCampaign();
+      //await selectCampaignPage.selectCampaign('Campaign ID', 'CAM09266');
+      await selectCampaignPage.selectCampaign();
       await createContactPage.bringToFront();   
       await createContactPage.submitForm();
-      expect(await createContactPage.getContactCreatedMessage()).toBe(`Contact ${data.name} Successfully Added`);
+      expect(await createContactPage.getContactCreatedMessage()).toBe(`Contact ${testData.contactName} Successfully Added`);
     });
-      
   });
 
  test.afterEach(async ({ page }, testInfo) => {

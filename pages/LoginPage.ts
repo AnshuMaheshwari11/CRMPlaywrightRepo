@@ -15,6 +15,12 @@ export class LoginPage {
         this.passwordError = page.locator('input#inputPassword + .invalid-feedback');
     }
 
+    async login(username: string, password: string) {
+        await this.page.goto('/');
+        await this.username.fill(username);
+        await this.password.fill(password);
+        await this.signInButton.click();
+    }
     async goto() {
         await this.page.goto('/');
     }
@@ -39,14 +45,7 @@ export class LoginPage {
         return this.passwordError.textContent();        
     }
 
-    async login(username: string, password: string) {
-        await this.goto();
-        await this.enterUsername(username);
-        await this.enterPassword(password);
-        await this.clickSignIn();
-    }
-
-   async getTokenOnLogin(username: string, password: string): Promise<string> {
+    async getTokenOnLogin(username: string, password: string): Promise<string> {
 
         await this.goto();
         await this.enterUsername(username);
@@ -63,7 +62,6 @@ export class LoginPage {
         console.log('Extracted JWT Token: ', responseBody.jwtToken);
         return responseBody.jwtToken;
     }   
-    
     getPage() {
         return this.page;
     }

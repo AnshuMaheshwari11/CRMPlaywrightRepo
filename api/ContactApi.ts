@@ -1,4 +1,8 @@
 import { APIRequestContext } from '@playwright/test';
+import { ContactPayload } from '../test-data/contactData';
+import { generateUniqueEmail, generateUniqueMobile } from '../utils/dataGenerator';
+
+
 
 export class ContactApi {
     private readonly apiContext: APIRequestContext;
@@ -22,17 +26,19 @@ export class ContactApi {
         return response;
     }
 
-    async createContact(contactData: object, campaignId: string) {
+    async createContact(contactData: ContactPayload, campaignId: string) {
+    
         const response = await this.apiContext.post('/contact', {
             params: {
                 campaignId: campaignId
             },
             data: contactData
         });
-        return response;
+        const data = await response.json();
+        return { response, contactId: data.contactId };
     }
 
-    async updateContact(contactData: object, contactId: string, campaignId:  string) {
+    async updateContact(contactData: ContactPayload, contactId: string, campaignId:  string) {
         const response = await this.apiContext.put('/contact', {
             params: {
                 contactId: contactId,

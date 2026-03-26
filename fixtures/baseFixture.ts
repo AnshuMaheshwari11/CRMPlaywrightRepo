@@ -1,11 +1,12 @@
-import { test as base, expect} from '@playwright/test';
-import { LoginPage, NavigationPage, ContactPage, CreateContactPage } from '../index'; 
+import { test as base, expect, Page} from '@playwright/test';
+import { LoginPage, NavigationPage, ContactPageFactory } from '../index'; 
 
 type BaseFixture = {
   loginPage: LoginPage;
   navigationPage: NavigationPage;
-  contactPage: ContactPage;
-  createContactPage: CreateContactPage;
+  contactPageFactory: ContactPageFactory;
+  //getPage: (page: any) => SelectCampaignPage;
+  getPage: <T>(PageClass: new (page: Page) => T, page: Page) => T;
 };
 
 export const test = base.extend<BaseFixture>({
@@ -18,12 +19,18 @@ export const test = base.extend<BaseFixture>({
     await use(new NavigationPage(page));
   },
 
-  contactPage: async ({ page }, use) => {
-    await use(new ContactPage(page));
+  contactPageFactory: async ({ page }, use) => {
+    await use(new ContactPageFactory(page));
   },
 
-  createContactPage: async ({ page }, use) => {
-    await use(new CreateContactPage(page));
+  // getPage:  async ({}, use) => {
+  //   await use((page) => new SelectCampaignPage(page));
+  // }
+
+  getPage: ({}, use) => {
+    use(<T>(PageClass: new (page: Page) => T, customPage: Page) => {
+      return new PageClass(customPage);
+    });
   },
 
 });

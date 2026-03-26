@@ -1,9 +1,24 @@
-export const contactRuntimeData: { contactId?: string } = {};
+
+export type ContactPayload = {
+  contactName: string;
+  organizationName: string;
+  title: string;
+  department?: string;
+  officePhone?: string;
+  mobile: string;
+  email?: string;
+};
+
+export type ContactData = ContactPayload & {
+  scenario?: string;           // e.g., 'lowerboundary', 'upperboundary'
+  expectedErrorMessage?: string; // optional, for UI validation
+};
+
 export const defaultCampaignID = 'CAM09242';
 export const updatedCampaignID = 'CAM09266';
 
 //Static payload for API Create Contact
-export const createContactPayload = {
+export const createContactPayload: ContactPayload = {
   mobile: '1000000001',
   contactName: 'Harry Potter',
   email: 'harry.potter@example.com',
@@ -14,7 +29,7 @@ export const createContactPayload = {
 };
 
 //Static payload for API Update Contact
-export const updateContactPayload = {
+export const updateContactPayload: ContactPayload = {
   mobile: '1000000002',
   contactName: 'Harry Updated',
   email: 'harry.updated@example.com',
@@ -24,55 +39,45 @@ export const updateContactPayload = {
   officePhone: '1000000002'
 };
 
-//Functions to set/get contactId
-export function setContactId(id: string) {
-  contactRuntimeData.contactId = id;
-}
-
-export function getContactId() {
-  if (!contactRuntimeData.contactId) throw new Error('contactId not set! Run Create Contact first.');
-  return contactRuntimeData.contactId;
-}
-
 //UI boundary test data (edge cases)
-export const contactBoundaryData = [
+export const contactTestData:ContactData[] = [
   {
-    org: 'A1',
+    contactName: 'Jo',
+    organizationName: 'A1',
     title: 'IT',
-    dept: 'HR',
-    off: 1000000000,
-    name: 'Jo',
-    mob: 1000000000,
+    department: 'HR',
+    officePhone: '1000000000',
+    mobile: '1000000000',
     email: 'jo@cd.co',
     scenario: 'lowerboundary'
   },
   {
-    org: 'GlobalTech Solutions Pvt Ltd 123',
+    contactName: 'Christopher Johnson',
+    organizationName: 'GlobalTech Solutions Pvt Ltd 123',
     title: 'SalesLead1',
-    dept: 'Enterprise Services 123',
-    off: 9999999999,
-    name: 'Christopher Johnson',
-    mob: 9999999999,
+    department: 'Enterprise Services 123',
+    officePhone: '9999999999',
+    mobile: '9999999999',
     email: 'alex123@bigcompanydomain.in',
     scenario: 'upperboundary'
   },
   {
-    org: 'ABC123 Corp',
+    contactName: 'Riya Mehta',
+    organizationName: 'ABC123 Corp',
     title: 'Manager',
-    dept: '',
-    off: undefined,
-    name: 'Riya Mehta',
-    mob: 9876543219,
+    department: '',
+    officePhone: undefined,
+    mobile: '9876543219',
     email: '',
     scenario: 'normal'
   },
   {
-    org: '1World Systems',
+    contactName: 'Amit Verma',
+    organizationName: '1World Systems',
     title: '2Consult',
-    dept: '3Support Team',
-    off: 1023456789,
-    name: 'Amit Verma',
-    mob: 1023456789,
+    department: '3Support Team',
+    officePhone: '1023456789',
+    mobile: '1023456789',
     email: '1contact@123app.net',
     scenario: 'normalnumeric'
   }

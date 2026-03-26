@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test';
-import { SelectCampaignPage } from './SelectCampaignPage';
+import { ContactData } from '../../test-data/contactData';
 
 type numberOrUndefined = number | undefined;
 
@@ -31,23 +31,29 @@ export class CreateContactPage {
       this.successMessage = page.getByRole('alert');
    }
 
-   async fillContactForm(organizationName: string, title: string, dept: string, off: numberOrUndefined, name: string, mob: number, email: string) {
-      await this.organization.fill(organizationName);
-      await this.title.fill(title);
-      await this.department.fill(dept);
-      await this.officePhone.fill(off?.toString() || '');
-      await this.contactName.fill(name);
-      await this.mobile.fill(mob.toString());
-      await this.email.fill(email);
+   async fillContactForm(data: ContactData) {
+      await this.organization.fill(data.organizationName);
+      await this.title.fill(data.title);
+      if (data.department !== undefined) {
+         await this.department.fill(data.department);
+      }
+      if (data.officePhone !== undefined) {
+         await this.officePhone.fill(data.officePhone.toString());
+      }
+      await this.contactName.fill(data.contactName);
+      await this.mobile.fill(data.mobile);
+      if (data.email !== undefined) {
+         await this.email.fill(data.email); 
+      }
    }
 
-   async openSelectCampaignPage(): Promise<SelectCampaignPage>  {
+   async openSelectCampaignPage(): Promise<Page> {
       const [childPage] = await Promise.all([
         this.page.waitForEvent('popup'),
         this.addIcon.click(),
       ]);
       await childPage.waitForLoadState();
-      return new SelectCampaignPage(childPage);
+      return childPage;
    }
 
    async bringToFront() {

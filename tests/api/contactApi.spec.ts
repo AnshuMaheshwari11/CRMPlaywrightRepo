@@ -1,13 +1,12 @@
 
 import { test, expect } from '../../fixtures/apiFixture';
-import { 
+import {
   createContactPayload, 
   updateContactPayload, 
-  setContactId, 
-  getContactId, 
   defaultCampaignID,
-  updatedCampaignID,
+  updatedCampaignID
 } from '../../test-data/contactData';
+import { makeContactDataUnique } from '../../utils/dataGenerator';
 
 test('Get All Contacts', async ({ contactApi }) => {
     const getAllResponse = await contactApi.getAllContact(1, 10);
@@ -26,47 +25,53 @@ test ('Get Contact Count', async ({ contactApi }) => {
 });
 
 test('Create Contact', async ({ contactApi }) => {
-    const contactData = createContactPayload;
+    const uniquePayload = makeContactDataUnique(createContactPayload);
     const campaignId = defaultCampaignID;
-    const createResponse = await contactApi.createContact(contactData, campaignId);
+     const { response: createResponse, contactId } 
+            = await contactApi.createContact(uniquePayload, campaignId);
 
     const responseBody = await createResponse.json();
-    setContactId(responseBody.contactId); // save ID for other tests
     expect(createResponse.status()).toBe(201);
-    expect(responseBody.contactId).toBeTruthy();
-    expect(responseBody.contactName).toBe(contactData.contactName);
-    expect(responseBody.email).toBe(contactData.email);
+    expect(contactId).toBeTruthy();
+    expect(responseBody.contactName).toBe(uniquePayload.contactName);
+    expect(responseBody.email).toBe(uniquePayload.email);
     expect(responseBody.campaign.campaignId).toBe(campaignId);
-    expect(responseBody.mobile).toBe(contactData.mobile);
-    expect(responseBody.officePhone).toBe(contactData.officePhone);
-    expect(responseBody.organizationName).toBe(contactData.organizationName);
-    expect(responseBody.title).toBe(contactData.title);
-    expect(responseBody.department).toBe(contactData.department);
+    expect(responseBody.mobile).toBe(uniquePayload.mobile);
+    expect(responseBody.officePhone).toBe(uniquePayload.officePhone);
+    expect(responseBody.organizationName).toBe(uniquePayload.organizationName);
+    expect(responseBody.title).toBe(uniquePayload.title);
+    expect(responseBody.department).toBe(uniquePayload.department);
     console.log('Create Contact successful, body:', responseBody);
 });
 
 test ('Update Contact', async ({ contactApi }) => {
-    const updateData = updateContactPayload;
+    const uniquePayload = makeContactDataUnique(createContactPayload);
+    const { response: createResponse, contactId } = await contactApi.createContact(uniquePayload, defaultCampaignID);
+    expect(createResponse.status()).toBe(201);
+
+    const uniqueUpdatePayload = makeContactDataUnique(updateContactPayload);
     const campaignId = updatedCampaignID;
-    const contactId = getContactId();
-    const updateResponse = await contactApi.updateContact(updateData, contactId, campaignId);
+    const updateResponse = await contactApi.updateContact(uniqueUpdatePayload, contactId, campaignId);
 
     expect(updateResponse.status()).toBe(200);
     const responseBody = await updateResponse.json();
     expect(responseBody.contactId).toBe(contactId);
-    expect(responseBody.contactName).toBe(updateData.contactName);
-    expect(responseBody.email).toBe(updateData.email);
+    expect(responseBody.contactName).toBe(uniqueUpdatePayload.contactName);
+    expect(responseBody.email).toBe(uniqueUpdatePayload.email);
     expect(responseBody.campaign.campaignId).toBe(campaignId);
-    expect(responseBody.mobile).toBe(updateData.mobile);
-    expect(responseBody.officePhone).toBe(updateData.officePhone);
-    expect(responseBody.organizationName).toBe(updateData.organizationName);
-    expect(responseBody.title).toBe(updateData.title);
-    expect(responseBody.department).toBe(updateData.department);
+    expect(responseBody.mobile).toBe(uniqueUpdatePayload.mobile);
+    expect(responseBody.officePhone).toBe(uniqueUpdatePayload.officePhone);
+    expect(responseBody.organizationName).toBe(uniqueUpdatePayload.organizationName);
+    expect(responseBody.title).toBe(uniqueUpdatePayload.title);
+    expect(responseBody.department).toBe(uniqueUpdatePayload.department);
     console.log('Update Contact successful, body:', responseBody);
 });
 
 test('Delete Contact', async ({ contactApi }) => {
-    const contactId = getContactId();
+   const uniquePayload = makeContactDataUnique(createContactPayload);
+   const { response: createResponse, contactId } = await contactApi.createContact(uniquePayload, defaultCampaignID);
+    expect(createResponse.status()).toBe(201);
+
     const deleteResponse = await contactApi.deleteContact(contactId);
     expect(deleteResponse.status()).toBe(204);
     console.log('Delete Contact successful for contactId:', contactId);
