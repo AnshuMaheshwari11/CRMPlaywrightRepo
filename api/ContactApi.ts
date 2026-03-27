@@ -1,8 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
 import { ContactPayload } from '../test-data/contactData';
-import { generateUniqueEmail, generateUniqueMobile } from '../utils/dataGenerator';
-
-
 
 export class ContactApi {
     private readonly apiContext: APIRequestContext;
