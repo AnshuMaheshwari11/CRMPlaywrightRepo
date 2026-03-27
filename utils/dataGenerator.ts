@@ -2,9 +2,10 @@ import { ContactData, ContactPayload } from "../test-data/contactData";
 
 export function generateUniqueEmail(baseEmail: string) {
   if (!baseEmail) return '';
-  const timestamp = Date.now();
+  //const timestamp = Date.now();
+  const timestamp = new Date().toISOString().slice(11, 23).replace(/[:.]/g, '');
   const [name, domain] = baseEmail.split('@');
-  return `${name}+${timestamp}@${domain}`;
+  return `${name}${timestamp}@${domain}`;
 }
 
 export function generateUniqueMobile(baseMobile: string) {
