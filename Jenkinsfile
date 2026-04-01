@@ -36,6 +36,10 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh 'npm test'
+                // Debug: verify reports are generated
+                sh 'ls -la'
+                sh 'ls -la allure-results || true'
+                sh 'ls -la playwright-report || true'
             }
         }
     }
@@ -45,10 +49,12 @@ pipeline {
             echo 'Pipeline completed'
 
             // Publish Playwright HTML report
-            publishHTML([
+            publishHTML(target: [
                 reportDir: 'playwright-report',
                 reportFiles: 'index.html',
                 reportName: 'Playwright Report',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
                 allowMissing: true
             ])
 
